@@ -1,0 +1,13 @@
+{
+    "xsappname": "vert-scheduler",
+    "tenant-mode": "dedicated",
+    "authorities":["$ACCEPT_GRANTED_AUTHORITIES"],
+    "description": "Security profile of called application",
+      "scopes": [
+          {
+        "name": "$XSAPPNAME.JOBSCHEDULER",
+        "description": "Job Scheduler Scope",
+        "grant-as-authority-to-apps": ["$XSSERVICENAME(js_vert-scheduler)"]
+    }]
+}
+

@@ -1,0 +1,44 @@
+_schema-version: '3.2'
+ID: RFIVertRunScheduler
+version: 0.0.1
+modules:
+  - name: vert-scheduler
+    type: nodejs
+    path: vert-scheduler
+    requires:
+      - name: uaa_vert-scheduler
+      - name: js_vert-scheduler
+      - name: vert_scheduler_dest
+      - name: vert_scheduler_UPS
+    provides:
+      - name: vert-scheduler_api
+        properties:
+          url: '${default-url}'
+    properties:
+      SAP_JWT_TRUST_ACL: '[{"clientid":"*", "identityzone":"*"}]'
+resources:
+  - name: uaa_vert-scheduler
+    parameters:
+      path: './xs-security.json'
+      service-plan: application
+      service: xsuaa
+    type: org.cloudfoundry.managed-service
+  - name: js_vert-scheduler
+    parameters:
+      service-name: js_vert-scheduler
+      service: jobscheduler
+      service-plan: standard
+      config:
+        enable-xsuaa-support: true
+    type: org.cloudfoundry.managed-service
+  - name: vert_scheduler_dest
+    type: org.cloudfoundry.managed-service
+    parameters:
+      service: destination
+      service-plan: lite
+  - name: vert_scheduler_UPS
+    type: org.cloudfoundry.existing-service
+    parameters:
+      service: User-Provided
+      service-name: vert_scheduler_UPS
+      service-plan: free

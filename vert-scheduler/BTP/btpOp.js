@@ -11,7 +11,7 @@ const axios = require('axios');
 const qs = require('qs');
 const cfenv = require('cfenv');
 const creds = require('service-credentials');
-const hostBTP = "https://fstech-infr-ferr-prd-vert-verticale-esterni-srv.cfapps.eu10.hana.ondemand.com/catalog"
+const hostBTP = "https://fstech-infr-ferr-qas-vert-verticale-esterni-srv.cfapps.eu10.hana.ondemand.com/catalog"
 
 async function authBtp() {
     var credentials = creds.getCredentials('vert_scheduler_UPS');
@@ -19,12 +19,13 @@ async function authBtp() {
     //console.log(appEnv);
     //console.log("\x1b[32m", "App Env servizi:\n" + JSON.stringify(appEnv.getServices()));
     //console.log("\x1b[33m", "App Env Singolo servizio:\n" + JSON.stringify(appEnv.getServices('uaa_vert-scheduler')));
-    //console.log('\x1b[34m', "Credenziali:\n" + JSON.stringify(credentials));
-   // console.log('"\x1b[30m"', "-----------------------")
+    console.log('\x1b[34m', "Credenziali:\n" + JSON.stringify(credentials));
+    console.log('"\x1b[30m"', "-----------------------")
 
-    var btpServiceTokenUrl = 'https://infr-ferr-prd.authentication.eu10.hana.ondemand.com/oauth/token?grant_type=client_credentials&response_type=token';
-    var btpUser = btpCredentials["BTP_USER"]; 
-    var btpPassword = btpCredentials["BTP_PASSWORD"];
+    var btpServiceTokenUrl = 'https://infr-ferr-qas.authentication.eu10.hana.ondemand.com/oauth/token?grant_type=client_credentials&response_type=token';
+    var btpUser = btpCredentials["BTP_USER"]; //'sb-verticale_esterni!t141138';
+    var btpPassword = btpCredentials["BTP_PASSWORD"]; //'je8deQZC1zlZ0TZ1n0WYmb4rvcI=';
+
 
     var buff = Buffer.from(btpUser + ":" + btpPassword, 'utf8');
     var btpBasicAuth = 'Basic ' + buff.toString('base64');
@@ -42,6 +43,22 @@ async function authBtp() {
     const btpBearerToken = response.data.access_token;
 
     return btpBearerToken;
+}
+
+async function authCC() {
+    
+
+    var credentials = creds.getCredentials('vert_scheduler_UPS');
+    var CCCredentials = JSON.parse(JSON.stringify(credentials));
+
+    var CCUser = CCCredentials["CC_USER"]; 
+    var CCPassword = CCCredentials["CC_PASSWORD"]; 
+
+    var buff = Buffer.from(CCUser + ":" + CCPassword, 'utf8');
+    var CCBasicAuth = 'Basic ' + buff.toString('base64');
+
+
+    return CCBasicAuth;
 }
 
 async function takeAbAgNull(token){
@@ -268,7 +285,8 @@ async function takeSignedItems(token){
 
 }
 
-async function takeBase64(url){
+async function takeBase64(AuthCC,url){
+    console.log("credenziali" + AuthCC);
     try {
         console.log("sono in takeBase64");
         var config = {
@@ -277,7 +295,8 @@ async function takeBase64(url){
                 responseType: 'arraybuffer',
                 responseEncoding: 'binary',
                 headers: {
-                    "Content-Type": "application/pdf"
+                    "Content-Type": "application/pdf",
+                    "Authorization": AuthCC
                 }
             };
             const {data: pdf} = await axios(config);
@@ -287,7 +306,7 @@ async function takeBase64(url){
 
             return base64;
     }catch (error) {
-    console.log("ERRORE nel takeBase64" );       
+    console.log("ERRORE nel takeBase64" + error);       
     }
 
 }
@@ -379,6 +398,7 @@ function getToken(conf) {
 
 module.exports = {
     authBtp,
+    authCC,
     takeAbAgNull,
     takeAbAgNotNull,
     takeAb,

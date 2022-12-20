@@ -27,5 +27,18 @@
     "service-credentials": "^1.0.1",
     "x2js": "^3.4.3",
     "xml2js": "^0.4.23"
-  }
+  },
+  "cds": {
+    "requires": {
+        "db": {
+            "kind": "hana"
+        },
+        "uaa": {
+            "kind": "xsuaa"
+        },
+        "destinations": {
+            "destination": "PORTALE_RFI_TEST"
+        }
+      }
+    }
 }

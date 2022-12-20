@@ -57,7 +57,7 @@ async function DestToken(dest_service, uaa_service,sUaaCredentials) {
     
         // retrieve destination-configuration
         const token = JSON.parse(JSON.stringify(res)).access_token;
-        const sDestinationName = 'PORTALE_RFI';
+        const sDestinationName = 'PORTALE_RFI_TEST';
         var payload = {
             url: dest_service.uri + '/destination-configuration/v1/destinations/' + sDestinationName,
         headers: {
@@ -66,23 +66,23 @@ async function DestToken(dest_service, uaa_service,sUaaCredentials) {
     
         var Response = await axios(payload);
         var res = Response.data;
-        //console.log("res " + JSON.stringify(res));
-        //console.log("token string type " + JSON.stringify(res.authTokens[0].type));
+        console.log("res " + JSON.stringify(res));
+        console.log("token string type " + JSON.stringify(res.authTokens[0].type));
 
         //const destinationName = sDestinationName;
         const options = {
             method: 'GET',
-            url: '/',
-            //responseType: 'arraybuffer',
-            //responseEncoding: 'binary',
+            url: '/AI_6KTTABGOUR1P_signed.pdf',
+            responseType: 'arraybuffer',
+            responseEncoding: 'binary',
             headers: {
                 'Content-Type': 'application/pdf',
                 
             }
         };
         const axiosCF = SapCfAxios(sDestinationName);
-        //const {data: pdf} = await axiosCF(options);
-        const responseCF = await axiosCF(options);
+        console.log("axiosCF : " + axiosCF);
+        const {data: pdf} = await axiosCF(options);
 
         /*const options = {
             method: 'GET',
@@ -110,9 +110,9 @@ async function DestToken(dest_service, uaa_service,sUaaCredentials) {
             }
         );*/
         //const {data: pdf} = await axios(options);
-        //var base64 = Buffer.from(pdf).toString('base64');
-          // console.log("in takeBase64 base64 is");
-           console.log("response" + JSON.stringify(responseCF.data));
+        var base64 = Buffer.from(pdf).toString('base64');
+           console.log("in takeBase64 base64 is");
+          console.log(base64);
 
         
         

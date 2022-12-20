@@ -11,15 +11,15 @@ const axios = require('axios');
 const qs = require('qs');
 const cfenv = require('cfenv');
 const _ = require('underscore');
+const X2JS = require('x2js');
 const creds = require('service-credentials');
 const btpOperation = require('./BTP/btpOp');
 const litmosOperation = require('./LITMOS/litmosOp');
 const fgOperation = require('./FG/fgOp');
 const jobSchedulerUtils = require('./utils/jobSchedulerUtils');
 const utility = require('./utils/utils');
-const hostBTP = "https://fstech-infr-ferr-prd-vert-verticale-esterni-srv.cfapps.eu10.hana.ondemand.com/catalog";
-const hostPO = " http://rpp-wd.rfi.it";
-const hostLitmos = "https://fsacademy-prod.litmoseu.com/v1.svc";
+const hostBTP = "https://fstech-infr-ferr-qas-vert-verticale-esterni-srv.cfapps.eu10.hana.ondemand.com/catalog";
+const hostPO = " http://lxq-wd.fslogistica.it";
 
 const xsuaaCredentials = xsenv.getServices({
     uaa: {
@@ -76,7 +76,7 @@ app.get('/destination', async (req, res) => {
     const sUaaCredentials = dest_service.clientid + ':' + dest_service.clientsecret;
     const sDestinationName = 'Fieldglass_DEST';
 
-    //console.log("sUaaCredentials",sUaaCredentials);
+    console.log("sUaaCredentials",sUaaCredentials);
 
     try {
         var data = qs.stringify({
@@ -94,7 +94,7 @@ app.get('/destination', async (req, res) => {
         };
     
     
-        //console.log(config);
+        console.log(config);
         var response = await axios(config);
         var data = response.data;
 
@@ -146,7 +146,7 @@ app.get('/aggiunginuoveditte', scopeCheckMiddleware, async function (req, res) {
     url: fieldglassServiceUrl,
     method: "GET",
     headers: {
-        'x-ApplicationKey': 'ERFI_LTfN5crs7n4Q4H4Wf9YhahWCT6n',
+        'x-ApplicationKey': 'TRFI_9ERVL87TJKX4pnGSPUWWcq3DqTM',
         'Accept': 'application/json',
         'Authorization': AuthPO,
     }
@@ -214,7 +214,7 @@ app.get('/aggiunginuoveditteDelta', scopeCheckMiddleware, async function (req, r
         url: fieldglassServiceUrl,
         method: "GET",
         headers: {
-            'x-ApplicationKey': 'ERFI_LTfN5crs7n4Q4H4Wf9YhahWCT6n',
+            'x-ApplicationKey': 'TRFI_9ERVL87TJKX4pnGSPUWWcq3DqTM',
             'Accept': 'application/json',
             'Authorization': AuthPO,
         }
@@ -356,7 +356,7 @@ app.get('/aggiungiDitteLitmos', scopeCheckMiddleware, async function (req, res) 
   
             axios({
                 method: 'POST',
-                url: hostPO + '/RESTAdapter/CreateTeams',
+                url: hostPO + '/RESTAdapter/CreateTeams',//'https://api.litmoseu.com/v1.svc/teams/1P9fRbiYg1o1/teams?&source=fsacademytest',
                 data: xml,
                 headers: {
                     'Authorization': AuthPO,
@@ -399,6 +399,7 @@ app.get('/getAchievements', scopeCheckMiddleware, async function (req, res) {
        // emails = _.uniq(emails,"email");
     //console.log("Mail da esplorare: \n" + JSON.stringify(emails));
     var users = await litmosOperation.litmosUsersFromMail(emails,AuthPO);
+   // var user = console.log("Id Utente: \n" + JSON.stringify(users[0].userID));
     console.log("Id Utenti: \n" + JSON.stringify(users));
     var usersFinal = await litmosOperation.litmosUsersCourses(users,AuthPO);
     console.log("Final Users: " + JSON.stringify(usersFinal));
@@ -521,6 +522,7 @@ app.get('/updateSignedDocument', scopeCheckMiddleware, async function (req, res)
     
 
 });
+
 
 app.listen(PORT, function () {
     console.log('jssampleapp server listening at port ' + PORT);

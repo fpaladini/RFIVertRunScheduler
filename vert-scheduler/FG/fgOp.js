@@ -14,8 +14,8 @@ const cfenv = require('cfenv');
 const creds = require('service-credentials');
 const _ = require('underscore');
 const btpOperation = require('../BTP/btpOp');
-const hostfg = "https://www.fieldglass.eu/api/vc/connector";
-const hostPO = "http://rpp-wd.rfi.it";
+const hostfg = "https://euxcore1.fgvms.eu/api/vc/connector";
+const hostPO = " http://lxq-wd.fslogistica.it";
 
 async function authFG() {
     
@@ -24,9 +24,11 @@ async function authFG() {
     var credentials = creds.getCredentials('vert_scheduler_UPS');
     var FICredentials = JSON.parse(JSON.stringify(credentials));*/
 
-    var fieldglassServiceTokenUrl = 'https://www.fieldglass.eu/api/oauth2/v2.0/token?grant_type=client_credentials&response_type=token';
-    var fieldglassUser = 'Service_PO_ERFI';
+    var fieldglassServiceTokenUrl = 'https://euxcore1.fgvms.eu/api/oauth2/v2.0/token?grant_type=client_credentials&response_type=token';
+    var fieldglassUser = 'TRFI@fg_help';
     var fieldglassPassword = 'Almaviva1!';
+    //var fieldglassUser = FICredentials["FIELDGLASS_USER"]; 
+   // var fieldglassPassword = FICredentials["FIELDGLASS_PASSWORD"]; 
 
     var buff = Buffer.from(fieldglassUser + ":" + fieldglassPassword, 'utf8');
     var fielglassBasicAuth = 'Basic ' + buff.toString('base64');
@@ -50,6 +52,9 @@ async function authPO() {
     var credentials = creds.getCredentials('vert_scheduler_UPS');
     var POCredentials = JSON.parse(JSON.stringify(credentials));
 
+    //console.log('\x1b[34m', "Credenziali:\n" + JSON.stringify(credentials));
+    //console.log('"\x1b[30m"', "-----------------------")
+
     var POUser = POCredentials["PO_USER"]; 
     var POPassword = POCredentials["PO_PASSWORD"]; 
 
@@ -61,6 +66,28 @@ async function authPO() {
     return POBasicAuth;
 }
 
+/*async function _takeWorkerID(fieldglassBearerToken,cf,idAbilitazione){
+    var fieldglassServiceUrl = hostfg + '/ActiveWorkOrderProfileWorkerDownload';
+
+    var fieldglassOptions = {
+        url: fieldglassServiceUrl,
+        headers: {
+            'Authorization': 'Bearer ' + fieldglassBearerToken
+        }
+    };
+
+
+    var response = await axios(fieldglassOptions);
+    var afieldglassWorkerProfile = response.data.data;
+    //console.log("WORKER ID ALL" + JSON.stringify(afieldglassWorkerProfile));
+    var res  = _.where(afieldglassWorkerProfile, {"Security ID" : cf});
+        res  = _.where(res, {"Job Code" : idAbilitazione});
+        res = _.sortBy(res, "Worker ID").reverse();
+                            //workerID = res.length > 0 ? res[0]["Worker ID"] : workerID;
+    console.log("WORKER ID FOR CF" + JSON.stringify(res));
+
+    return res;
+}*/
 
 async function _takeWorkerID(POsBearerAuth,cf,idAbilitazione){
     var POServiceUrl = hostPO + '/RESTAdapter/ActiveWorkOrderProfileWorkerDownload';
@@ -86,62 +113,71 @@ async function _takeWorkerID(POsBearerAuth,cf,idAbilitazione){
 
 async function addMilestone(POBearerToken,aWorkerID,idAbilitazione,type){
 
-  var aType = type === 1 ? [300,400,450] : [500,550,600];
-  var aObj = [];
-  var date = new Date();
+    var aType = type === 1 ? [300,400,450] : [500,550,600];
+    var aObj = [];
+    var date = new Date();
 
-  for(var i = 0; i < aWorkerID.length; i++){
-      aObj = [];
-      for (var j = 0; j < aType.length; j++){
-          aObj.push({
-              "Completion Type": "",
-              "Action": "",
-              "Escalate after due date (days)": 0,
-              "Usage": "Optional",
-              "Description": "",
-              "Due Days": 0,
-              "Send work Items before due date (days)": 0,
-              "Due Type": "",
-              "Code": idAbilitazione + "_" + aType[j],
-              "Modification Type": "A",
-              "Type": "Activity",
-              "Web Address": "",
-              "Actor": "",
-              "Due On Date": date.getFullYear() +  "-" + (date.getMonth() + 1).toString().padStart(2,'0') + "-" +  date.getDate().toString().padStart(2,'0'),
-              "Worker ID": aWorkerID[i]["Worker ID"],
-              "Emails": ""
-          })
-      }
+    for(var i = 0; i < aWorkerID.length; i++){
+        aObj = [];
+        for (var j = 0; j < aType.length; j++){
+            aObj.push({
+                "Completion Type": "",
+                "Action": "",
+                "Escalate after due date (days)": 0,
+                "Usage": "Optional",
+                "Description": "",
+                "Due Days": 0,
+                "Send work Items before due date (days)": 0,
+                "Due Type": "",
+                "Code": idAbilitazione + "_" + aType[j],
+                "Modification Type": "A",
+                "Type": "Activity",
+                "Web Address": "",
+                "Actor": "",
+                "Due On Date": date.getFullYear() +  "-" + (date.getMonth() + 1).toString().padStart(2,'0') + "-" +  date.getDate().toString().padStart(2,'0'),
+                "Worker ID": aWorkerID[i]["Worker ID"],
+                "Emails": ""
+            })
+        }
 
-      var data = JSON.stringify({
-          "headers": {
-            "Type": "WorkerActivityMilestoneItemUpload",
-            "Comments": "",
-            "Transaction": "True"
+        var data = JSON.stringify({
+            "headers": {
+              "Type": "WorkerActivityMilestoneItemUpload",
+              "Comments": "",
+              "Transaction": "True"
+            },
+            "data": aObj
+          });
+
+        /*var options = {
+            method: 'post',
+            url: hostfg +'/WorkerActivityMilestoneItemUpload',
+            headers: { 
+              'Authorization': 'Bearer ' + fieldglassBearerToken, 
+              'Content-Type': 'application/json', 
+            },
+            data : data
+        }*/
+        var options = {
+          method: 'post',
+          url: hostPO + '/RESTAdapter/WorkerActivityMilestoneItemUpload',
+          headers: { 
+            'Authorization': POBearerToken, 
+            'Content-Type': 'application/json', 
           },
-          "data": aObj
-        });
-
-      var options = {
-        method: 'post',
-        url: hostPO + '/RESTAdapter/WorkerActivityMilestoneItemUpload',
-        headers: { 
-          'Authorization': POBearerToken, 
-          'Content-Type': 'application/json', 
-        },
-        data : data
+          data : data
+      }
+        console.log(JSON.stringify(options))
+        var response = await axios(options)
+                        .then(function(response) {
+                            //console.log(response.data);
+                            console.log("WORKER ID: MILESTONE AGGIORNATE --> " +  aWorkerID[i]["Worker ID"]);
+                        })
+                        .catch(function(error) {
+                            //console.log(error);
+                            console.log("WORKER ID: MILESTONE GIA' AGGIORNATE --> " + aWorkerID[i]["Worker ID"]);
+                        });
     }
-      console.log(JSON.stringify(options))
-      var response = await axios(options)
-                      .then(function(response) {
-                          //console.log(response.data);
-                          console.log("WORKER ID: MILESTONE AGGIORNATE --> " +  aWorkerID[i]["Worker ID"]);
-                      })
-                      .catch(function(error) {
-                          //console.log(error);
-                          console.log("WORKER ID: MILESTONE GIA' AGGIORNATE --> " + aWorkerID[i]["Worker ID"]);
-                      });
-  }
 }
 
 async function activityCompletionItem(POBearerToken,workerID,idAbilitazione,DocType,data_scad, data_doc){
@@ -300,7 +336,7 @@ async function SaveDocumentsDirect(AuthPO,aWorkerID,abilitazione,UUID,base64){
         "url": hostPO + '/RESTAdapter/Attachments_TRFI',
         "method": method,
         "headers": {
-          "x-ApplicationKey": "ERFI_LTfN5crs7n4Q4H4Wf9YhahWCT6n",
+          "x-ApplicationKey": "TRFI_9ERVL87TJKX4pnGSPUWWcq3DqTM",
           'Authorization': AuthPO, 
           "Content-Type": "application/xml"
         },

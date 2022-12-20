@@ -1,0 +1,13 @@
+### Get request
+GET http://localhost:4559/health_status
+Content-Type: application/json
+
+
+### Get aggiunginuoveditte
+GET http://localhost:4559/aggiunginuoveditte
+Content-Type: application/json
+
+
+### Get Courses and achievements
+GET http://localhost:4559/getAchievements
+Content-Type: application/json

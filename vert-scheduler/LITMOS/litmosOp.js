@@ -10,11 +10,12 @@ const request = require('request');
 const axios = require('axios');
 const qs = require('qs');
 const X2JS = require('x2js');
+const _ = require('underscore');
 const parseString = require('xml2js').parseString;
 const cfenv = require('cfenv');
 const creds = require('service-credentials');
-const hostLitmos = "https://fsacademy-prod.litmoseu.com/v1.svc";
-const hostPO = "http://rpp-wd.rfi.it";
+const hostLitmos = "https://api.litmoseu.com/v1.svc";
+const hostPO = " http://lxq-wd.fslogistica.it";
 
 async function litmosUsersFromMail(emails,AuthPO){
     console.log("SONO IN litmosUsersFromMail");
@@ -22,6 +23,7 @@ async function litmosUsersFromMail(emails,AuthPO){
     var arr = [];
     var usersID = [];
     var results = null;
+    console.log("url --> " + hostPO + '/RESTAdapter/GetListOfUsers?search='+ emails[0].email);
     for(var i=0; i < emails.length; i++){
         console.log("Email --> " + emails[i].email);
         var cf = emails[i].cod_fisc;
@@ -29,22 +31,39 @@ async function litmosUsersFromMail(emails,AuthPO){
         
         await axios({ 
             method: 'get',
-            url: hostPO + '/RESTAdapter/GetListOfUsers?search='+ emails[i].email,
+            url: hostPO + '/RESTAdapter/GetListOfUsers?search='+ emails[i].email,//hostLitmos + '/users?=&source=fsacademytest&limit=1000&search=' + emails[i].email,
             headers: {
                 "Authorization": AuthPO,
             }
+            /*method: 'get',
+            url: hostLitmos + '/users?=&source=fsacademytest&limit=1000&search=' + emails[i].email,//'http://lxq-wd.fslogistica.it/RESTAdapter/GetListOfUsers?search='+ emails[i].email
+            headers: {
+                'Accept': 'application/json',
+                "apikey": "3a2e541d-e084-411c-9968-fda564dc039d"
+            }*/
             })
             .then(function (response) {
                 console.log("Response della mail : " + JSON.stringify(response.data) );
                 results = response.data !== undefined ? response.data : [];
-
+              /*  
+                for(var j = 0; j <results.length; j++){
+                    usersID.push({userID: results[j].Id, cod_fisc: cf, id_abil: idAbil});
+                }*/
                 if(results !== []){
                     var xml = response.data
                     var x2js = new X2JS();
                     var json = x2js.xml2js(xml);
                     var result = json['Users'].User;
                     var obj = JSON.parse(JSON.stringify(result));
-                    usersID.push({userID: obj.Id, cod_fisc: cf, id_abil: idAbil});
+                    //obj = response.data !== undefined ? response.data : [];
+
+                    //if(obj.length === undefined){
+                        usersID.push({userID: obj.Id, cod_fisc: cf, id_abil: idAbil});
+                   /* }else{
+                        for(var j = 0; j <obj.length; j++){
+                            usersID.push({userID: obj[j].Id, cod_fisc: cf, id_abil: idAbil});
+                       }
+                    }*/
                 }
             })
             .catch(function (error) {
@@ -52,6 +71,8 @@ async function litmosUsersFromMail(emails,AuthPO){
             });
     }
     return usersID;
+    
+
     
 }
 
@@ -67,14 +88,18 @@ async function litmosUsersCourses(users,AuthPO){
     await delay(5000); /// waiting 2 seconds.
     await axios({
             method: 'GET',
-            url: hostPO + '/RESTAdapter/AssignCoursesToUser/' + user,
+            url: hostPO + '/RESTAdapter/AssignCoursesToUser/' + user, //'https://api.litmoseu.com/v1.svc/users/' + user + '/courses?&source=fsacademytest',
             headers: {
                 "Authorization": AuthPO,
                 "Content-Type": "application/xml",
             },
+           /* headers: {
 
+                'Accept': 'application/json',
+                "apikey": "203ad0a3-1e4d-4b96-9b34-0acfe3020c69"
+            },*/
         }).then(function (response) {
-            console.log("RISPOSTA LITMOS USER/COURSE:" + user + " ---- " + JSON.stringify(response.data));
+            //console.log("RISPOSTA LITMOS USER/COURSE:" + user + " ---- " + JSON.stringify(response.data));
             //var results = response.data;
 
             var xml = response.data
@@ -91,6 +116,13 @@ async function litmosUsersCourses(users,AuthPO){
                 }
             }
 
+
+           /*var bAllCompleted = results.length > 0 ? true : false;
+            for(var i = 0; i< results.length; i++){
+                if(!results[i].Complete){
+                    bAllCompleted = false;
+                }
+            }*/
 
             usersFinal.push({
                 "Id" : user,
@@ -111,7 +143,39 @@ async function litmosUsersCourses(users,AuthPO){
 }
 
 
+async function _onGetTeamsLitmos(POBearerToken){
+
+    var results="";
+    await axios({
+        method: 'get',
+        url: hostPO + '/RESTAdapter/CreateTeams',
+        headers: {
+            'Authorization': POBearerToken,
+            'accept' : 'application/json'
+        }
+        })
+        .then(function (response) {
+
+            var xml = response.data
+            var x2js = new X2JS();
+            var json = x2js.xml2js(xml);
+            var result = json['Teams'].Team;
+            console.log("ditta : " + JSON.stringify(result));
+            var obj = JSON.parse(JSON.stringify(result));
+            var idDitta = _.where(obj, {Name: "Almaviva"})[0].Id;
+            console.log("ditta : " + JSON.stringify(idDitta));
+            
+           
+        })
+        .catch(function (error) {
+            console.log('errore: ' + error);
+        });
+
+    return results;
+}
+
 module.exports = {
     litmosUsersFromMail,
-    litmosUsersCourses
+    litmosUsersCourses,
+    _onGetTeamsLitmos
 } 

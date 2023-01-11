@@ -25,8 +25,8 @@ async function authFG() {
     var FICredentials = JSON.parse(JSON.stringify(credentials));*/
 
     var fieldglassServiceTokenUrl = 'https://www.fieldglass.eu/api/oauth2/v2.0/token?grant_type=client_credentials&response_type=token';
-    var fieldglassUser = 'Service_PO_ERFI';
-    var fieldglassPassword = 'Almaviva1!';
+    //var fieldglassUser = 'Service_PO_ERFI';
+    //var fieldglassPassword = 'Almaviva1!';
 
     var buff = Buffer.from(fieldglassUser + ":" + fieldglassPassword, 'utf8');
     var fielglassBasicAuth = 'Basic ' + buff.toString('base64');

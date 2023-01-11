@@ -25,8 +25,8 @@ async function authFG() {
     var FICredentials = JSON.parse(JSON.stringify(credentials));*/
 
     var fieldglassServiceTokenUrl = 'https://euxcore1.fgvms.eu/api/oauth2/v2.0/token?grant_type=client_credentials&response_type=token';
-    var fieldglassUser = 'TRFI@fg_help';
-    var fieldglassPassword = 'Almaviva1!';
+    //var fieldglassUser = 'TRFI@fg_help';
+    //var fieldglassPassword = 'Almaviva1!';
     //var fieldglassUser = FICredentials["FIELDGLASS_USER"]; 
    // var fieldglassPassword = FICredentials["FIELDGLASS_PASSWORD"]; 
 

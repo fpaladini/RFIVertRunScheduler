@@ -482,7 +482,7 @@ app.get('/updateSignedDocument', scopeCheckMiddleware, async function (req, res)
 
     
     
-/*
+
     var btpToken = await btpOperation.authBtp();
     var aSignedItems = await btpOperation.takeSignedItems(btpToken);
     var arr = [];
@@ -497,7 +497,7 @@ app.get('/updateSignedDocument', scopeCheckMiddleware, async function (req, res)
                 //var base64 = await btpOperation.takeBase64(item.URL_FIRMATO);
                 var base64 = await btpOperation.takeBase64(AuthCC,'http://portalerfi.t-rfi.it:443/irj/go/km/docs/DocRFI/AreaLavoro/Documenti Identificativi Esterni/Firmati/AI_6KTTABGOUR1P_signed.pdf');
                 console.log("base64: " + JSON.stringify(base64));
-                /*var aWorkerID = await fgOperation._takeWorkerID(AuthPO,item.cod_fiscale,item.abilitazione);
+                var aWorkerID = await fgOperation._takeWorkerID(AuthPO,item.cod_fiscale,item.abilitazione);
                 console.log("WORKER ID FOR SIGNED DOCUMENTS" + JSON.stringify(aWorkerID));
                 var bUpdate = await fgOperation.SaveDocumentsDirect(AuthPO,aWorkerID,item.abilitazione,item.UUID,base64);
                 console.log("Return code da fieldglass per workerID " + aWorkerID[i]["Worker ID"] + "update:" + bUpdate);
@@ -507,10 +507,10 @@ app.get('/updateSignedDocument', scopeCheckMiddleware, async function (req, res)
                     await btpOperation.updateSignedItems(btpToken,item.UUID);
                     await btpOperation.SaveActivityItems(btpToken,aWorkerID,item.abilitazione);
                 }
-                arr.push(obj)*/
-           // }
+                arr.push(obj)
+            }
 
-        //}*/
+        }
         await jobSchedulerUtils.updateJobLogStatus(req.headers, true, JSON.stringify({ result: JSON.stringify(arr) }) );
      
     } catch (error) {

@@ -19,7 +19,7 @@ const fgOperation = require('./FG/fgOp');
 const jobSchedulerUtils = require('./utils/jobSchedulerUtils');
 const utility = require('./utils/utils');
 const hostBTP = "https://fstech-infr-ferr-qas-vert-verticale-esterni-srv.cfapps.eu10.hana.ondemand.com/catalog";
-const hostPO = " http://lxq-wd.fslogistica.it";
+const hostPO = "http://lxq-wd.fslogistica.it";
 
 const xsuaaCredentials = xsenv.getServices({
     uaa: {

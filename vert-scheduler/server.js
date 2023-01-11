@@ -18,7 +18,7 @@ const fgOperation = require('./FG/fgOp');
 const jobSchedulerUtils = require('./utils/jobSchedulerUtils');
 const utility = require('./utils/utils');
 const hostBTP = "https://fstech-infr-ferr-prd-vert-verticale-esterni-srv.cfapps.eu10.hana.ondemand.com/catalog";
-const hostPO = " http://rpp-wd.rfi.it";
+const hostPO = "http://rpp-wd.rfi.it";
 const hostLitmos = "https://fsacademy-prod.litmoseu.com/v1.svc";
 
 const xsuaaCredentials = xsenv.getServices({

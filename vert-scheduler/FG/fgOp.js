@@ -269,13 +269,14 @@ async function activityCompletionItem(POBearerToken,workerID,idAbilitazione,DocT
           'Content-Type': 'application/json', 
         },
         data : data
-      };
+      };git
       var bDelete = false;
       var response = await axios(config);
       if(response !== undefined){
         var ReturnCode = response.data !== undefined ? response.data.Status.ReturnCode : "400";
             if(ReturnCode !== "0"){
                 console.log("chiamata axios return code !== 0");
+                console.log("ReturnCode: " + ReturnCode);
                 bDelete = false;
             }else{
                 
@@ -306,6 +307,7 @@ async function activityCompletionItem(POBearerToken,workerID,idAbilitazione,DocT
         return bDelete;
     } catch (error) {
         console.log("Errore Activity item per workerID: \n" + workerID + "\n");
+        console.log("Errore Activity item desc: " + error);
          return false;   
     }
 }
